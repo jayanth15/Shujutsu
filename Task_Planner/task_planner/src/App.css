@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  /* Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+}
+
+.App{
+  width: 100vw;
+  height: 100vh;
+}
+
+
+.icon-text:before {
+  content: "\f007"; /* Font Awesome icon code for "fa-users" */
+  font-family: "Font Awesome 5 Free"; /* Font family of the icon font */
+  font-weight: 900; /* Font weight of the icon */
+  margin-right: 0.5rem; /* Spacing between the icon and the text */
+}
+
+.card-width {
+  width: 23rem;
+}
