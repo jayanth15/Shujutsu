@@ -14,11 +14,11 @@ class AuthHandler():
     username = None
 
     async def encode_token(self, user_info):
-        username = user_info["email"]
+        username = user_info["userid"]
         password = user_info["password"]
         payload = {
             "time": datetime.now().strftime("%y_%m_%d_%H_%M_%S"),
-            "username": username,
+            "userid": username,
             "password": password
         }
         token = jwt.encode(
@@ -33,7 +33,7 @@ class AuthHandler():
             }
             raise HTTPException(status_code=401, detail=detail)
         condition = {
-            "email": username
+            "userid": username
         }
         set_token = {
             "$set": {
@@ -41,16 +41,16 @@ class AuthHandler():
             }
         }
         insert_token = UserLoginTable.update_one(condition, set_token)
-        if not insert_token.acknowledged:
+        if insert_token.modified_count == 0:
             detail = "Unable to insert token into UserLogin Table"
             raise HTTPException(status_code=401, detail=detail)
         return token
 
-    async def authenticate_user(self, email, password):
-        email = {
-            "email": email
+    async def authenticate_user(self, userid, password):
+        userid = {
+            "userid": userid
         }
-        result = UserLoginTable.find_one(email)
+        result = UserLoginTable.find_one(userid)
         if result and result["password"] == password:
             return result
         return False
@@ -59,28 +59,28 @@ class AuthHandler():
         token = credentials.credentials
         try:
             payload = jwt.decode(token, self.TEAM_SECRET, algorithms=["HS256"])
-            username = payload["username"]
-            self.username = username
+            userid = payload["userid"]
+            self.username = userid
             password = payload["password"]
-            if not await self.authenticate_user(username, password):
+            if not await self.authenticate_user(userid, password):
                 raise HTTPException(status_code=401, detail={
                                     "error": "invalid username/password"})
-            if not self.verify_token(username, token):
+            if not self.verify_token(userid, token):
                 raise HTTPException(status_code=401, detail={
                                     "error": "Unable to find username/token"})
         except jwt.InvalidTokenError:
             raise HTTPException(status_code=401, detail={
                                 "error": "Invalid token"})
-        return username
+        return userid
 
     def check_login(self, token):
         print(token)
         return token
 
-    def verify_token(self, username, token):
+    def verify_token(self, userid, token):
         # token = token.encode("utf-8")
         condition = {
-            "$or": [{"phone": username}, {"email": username}],
+            "userid": userid,
             "token": token
         }
         find_token = UserLoginTable.find_one(condition)

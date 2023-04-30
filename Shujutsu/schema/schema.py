@@ -3,20 +3,11 @@ from typing import Optional
 import re
 
 class UserLogin(BaseModel):
-    email: str
+    userid: str
     password: str
 
-    @validator('email')
-    def validate_email(cls, v):
-        email_regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
-        if re.fullmatch(email_regex, v):
-            return v
-        raise ValueError('invalid email')
-
 class Register(BaseModel):
-    firstname: str
-    lastname: str | None = None
-    email: str
+    userid: str
     password: str
     confirm_password: str
 
@@ -27,22 +18,27 @@ class Register(BaseModel):
             raise ValueError('password did not match')
         return v
 
-    @validator('email')
-    def validate_email(cls, v):
-        print("Raising error here ?")
-        email_regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
-        if re.fullmatch(email_regex, v):
-            print(v)
-            print("DATA OF V: ", v)
-            return v
-        raise ValueError('invalid email')
 
-
-class CreateTeam(BaseModel):
+class CreateOrg(BaseModel):
     name: str
     members: Optional[list]
 
-
-class AddMembers(BaseModel):
-    _id: str
+class Members(BaseModel):
+    org: str
     members: list
+
+class Tasks(BaseModel):
+    title: str
+    description: str
+    assigned_to: str
+    status: str
+    org: str
+    created_at: str
+
+class UpdateTask(BaseModel):
+    org: str
+    task_id: str
+    description: str
+    status: str
+    updated_by: str
+    updated_at:str
